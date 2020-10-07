@@ -21,7 +21,6 @@ namespace DocxToPdfMVVM
         #endregion
 
         #region Member RelayCommands that implement ICommand
-        RelayCommandForProgressBar _Increment;
         RelayCommandForProgressBar _IncrementBy1;
         RelayCommandForProgressBar _IncrementAsBackgroundProcess;
         RelayCommandForProgressBar _ResetCounter;

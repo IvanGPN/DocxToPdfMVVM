@@ -20,7 +20,7 @@ namespace DocxToPdfMVVM.ViewModels
 {
     public class ApplicationViewModel : ViewModelBase, INotifyPropertyChanged, IDropTarget
     {
-        #region Items and Path
+        
         //Коллекция файлов
         public ObservableCollection<string> Items { get; set; }
 
@@ -35,7 +35,17 @@ namespace DocxToPdfMVVM.ViewModels
                 OnPropertyChanged("PathFiles");
             }
         }
-        #endregion
+
+        private string visibilityNotify;
+        public string VisibilityNotify
+        {
+            get { return visibilityNotify; }
+            set
+            {
+                visibilityNotify = value;
+                OnPropertyChanged("VisibilityNotify");
+            }
+        }
 
         #region ViewModel
         IDialogService dialogService;
@@ -50,6 +60,7 @@ namespace DocxToPdfMVVM.ViewModels
             files.FilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal); ;
             PathFiles = files;
             ItemsSet.PathFile = files.FilePath;
+            VisibilityNotify = "Collapsed";
         }
         #endregion
 
@@ -92,14 +103,29 @@ namespace DocxToPdfMVVM.ViewModels
                         
                     }
                     else
-                        MessageBox.Show("Неверный формат файла");
+                        VisibilityNotify = "Visible";
 
                 }
             }
         }
         #endregion
 
-        #region open folder with files
+        #region Close Notify
+        private RelayCommand closeNotifyCommand;
+        public RelayCommand CloseNotifyCommand
+        {
+            get
+            {
+                return closeNotifyCommand ??
+                    (closeNotifyCommand = new RelayCommand(obj =>
+                    {
+                        VisibilityNotify = "Collapsed";
+                    }));
+            }
+        }
+        #endregion
+
+                    #region open folder with files
         private RelayCommand openCommand;
         public RelayCommand OpenCommand
         {
