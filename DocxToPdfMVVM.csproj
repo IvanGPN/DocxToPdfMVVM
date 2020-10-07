@@ -73,6 +73,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Command\RelayCommand.cs" />
+    <Compile Include="Command\RelayCommandForProgressBar.cs" />
+    <Compile Include="Services\ItemsSet.cs" />
+    <Compile Include="ViewModels\ProgressBarViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBase.cs" />
     <Compile Include="Models\Files.cs" />
     <Compile Include="Services\DefaultDialogService.cs" />
     <Compile Include="Services\IDialogService.cs" />

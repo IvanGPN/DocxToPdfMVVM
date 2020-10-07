@@ -13,11 +13,14 @@ using DocxToPdfMVVM.Command;
 using DocxToPdfMVVM.Services;
 using System.IO;
 using Word = Microsoft.Office.Interop.Word;
+using System.Windows.Input;
+using System.Threading;
 
 namespace DocxToPdfMVVM.ViewModels
 {
-    public class ApplicationViewModel : INotifyPropertyChanged, IDropTarget
+    public class ApplicationViewModel : ViewModelBase, INotifyPropertyChanged, IDropTarget
     {
+        #region Items and Path
         //Коллекция файлов
         public ObservableCollection<string> Items { get; set; }
 
@@ -32,15 +35,23 @@ namespace DocxToPdfMVVM.ViewModels
                 OnPropertyChanged("PathFiles");
             }
         }
+        #endregion
 
-
+        #region ViewModel
         IDialogService dialogService;
 
         public ApplicationViewModel(IDialogService dialogService)
         {
             this.dialogService = dialogService;
             Items = new ObservableCollection<string>();
+            ItemsSet.Items = Items;
+
+            Files files = new Files();
+            files.FilePath = Environment.GetFolderPath(Environment.SpecialFolder.Personal); ;
+            PathFiles = files;
+            ItemsSet.PathFile = files.FilePath;
         }
+        #endregion
 
         #region Drag and Drop files
         public void DragOver(IDropInfo dropInfo)
@@ -131,6 +142,7 @@ namespace DocxToPdfMVVM.ViewModels
                             Files files = new Files();
                             files.FilePath = dialogService.FilePath;
                             PathFiles = files;
+                            ItemsSet.PathFile = files.FilePath;
                         }
                     }));
             }
@@ -150,7 +162,7 @@ namespace DocxToPdfMVVM.ViewModels
         }
         #endregion
 
-        #region delete files
+        #region delete one or all files
         //Удалить одну строку
         private RelayCommand deleteFile;
         public RelayCommand DeleteFile
@@ -181,7 +193,7 @@ namespace DocxToPdfMVVM.ViewModels
                     }, (obj) => Items.Count > 0));
             }
         }
-        #endregion
+        #endregion delete on
 
         #region start process
         private RelayCommand startConvertCommand;
@@ -219,10 +231,13 @@ namespace DocxToPdfMVVM.ViewModels
         }
         #endregion
 
+        #region Property
         public event PropertyChangedEventHandler PropertyChanged;
         public void OnPropertyChanged([CallerMemberName]string property = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
+        #endregion
+
     }
 }
