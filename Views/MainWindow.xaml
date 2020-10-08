@@ -14,7 +14,6 @@
             <Setter Property="Width" Value="200"></Setter>
             <Setter Property="Height" Value="30"></Setter>
         </Style>
-        <local:ProgressBarViewModel x:Key="PBVM" />
     </Window.Resources>
     
     <Grid>
