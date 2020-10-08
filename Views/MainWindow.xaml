@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DocxToPdfMVVM"
         xmlns:dd="urn:gong-wpf-dragdrop"
         mc:Ignorable="d"
-        Title="MainWindow" Height="650" Width="1000">
+        Title="Docx to pdf" Height="650" Width="1000">
 
     <Window.Resources>
         <Style TargetType="Button">
@@ -63,28 +63,28 @@
 
         <StackPanel Grid.Row="5" Orientation="Horizontal"
                     VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Button IsEnabled="{Binding Path=IsNotInProgress}" Command="{Binding Path=IncrementAsBackgroundProcess}" 
-                    DataContext="{StaticResource ResourceKey=PBVM}" 
+            <Button IsEnabled="{Binding IsNotInProgress}" Command="{Binding IncrementAsBackgroundProcess}" 
+                    
                     Height="50" Width="200" Style="{StaticResource RoundCorner}">Начать конвертацию</Button>
             
         </StackPanel>
         <ProgressBar  Grid.Row="4" Height="20" VerticalAlignment="Center" Margin="20,0,20,0"
-                      Value="{Binding Path=Value}" 
-                      DataContext="{StaticResource ResourceKey=PBVM}" Minimum="{Binding Min}" 
+                      Value="{Binding Value}" 
+                       Minimum="{Binding Min}" 
                       Maximum="{Binding Max}"></ProgressBar>
         
         <Border x:Name="BorderPopup" CornerRadius="6,6,6,6" Margin="0,0,0,0" Grid.RowSpan="6"
                 HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" Height="100" 
-                Panel.ZIndex="2" Visibility="{Binding VisibilityNotify}">
+                Panel.ZIndex="2" Visibility="{Binding VisibilityNotify}" >
             <Border.Background>
-                <SolidColorBrush Color="#FFFF9A9A"></SolidColorBrush>
+                <SolidColorBrush Color="{Binding ColorMessageBox}"></SolidColorBrush>
             </Border.Background>
             <Grid x:Name="PopupGrid" Margin="6,6,6,6" >
                 <Button Width="27"  Height="27" Margin="268,-7,-7,68" 
                         Style="{StaticResource RoundCornerTooltip}" Command="{Binding CloseNotifyCommand}">X</Button>
                 <TextBlock  TextWrapping="Wrap" Padding="5" MaxWidth="500" Opacity="1" 
                                 FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <Run Text="Неверный формат файла!"/>
+                    <Run Text="{Binding MessageText}"/>
                 </TextBlock>
 
             </Grid>

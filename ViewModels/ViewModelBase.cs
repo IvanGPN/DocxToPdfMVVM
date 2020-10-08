@@ -76,7 +76,7 @@ namespace DocxToPdfMVVM.ViewModels
         /// Raises this object's PropertyChanged event.
         /// </summary>
         /// <param name="propertyName">The property that has a new value.</param>
-        protected virtual void NotifyPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged(string propertyName)
         {
             this.VerifyPropertyName(propertyName);
 
@@ -88,11 +88,11 @@ namespace DocxToPdfMVVM.ViewModels
             }
         }
 
-        protected virtual void NotifyPropertyChangedAll(object inOjbect)
+        protected virtual void OnPropertyChangedAll(object inOjbect)
         {
             foreach (PropertyInfo pi in inOjbect.GetType().GetProperties())
             {
-                NotifyPropertyChanged(pi.Name);
+                OnPropertyChanged(pi.Name);
             }
         }
         #endregion // INotifyPropertyChanged Members

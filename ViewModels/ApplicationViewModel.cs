@@ -20,7 +20,7 @@ namespace DocxToPdfMVVM.ViewModels
 {
     public class ApplicationViewModel : ViewModelBase, INotifyPropertyChanged, IDropTarget
     {
-        
+        #region Properties
         //Коллекция файлов
         public ObservableCollection<string> Items { get; set; }
 
@@ -46,6 +46,29 @@ namespace DocxToPdfMVVM.ViewModels
                 OnPropertyChanged("VisibilityNotify");
             }
         }
+
+        private string messageText;
+        public string MessageText
+        {
+            get { return messageText; }
+            set
+            {
+                messageText = value;
+                OnPropertyChanged("MessageText");
+            }
+        }
+
+        private string colorMessageBox;
+        public string ColorMessageBox
+        {
+            get { return colorMessageBox; }
+            set
+            {
+                colorMessageBox = value;
+                OnPropertyChanged("ColorMessageBox");
+            }
+        }
+        #endregion
 
         #region ViewModel
         IDialogService dialogService;
@@ -103,7 +126,12 @@ namespace DocxToPdfMVVM.ViewModels
                         
                     }
                     else
+                    {
                         VisibilityNotify = "Visible";
+                        MessageText = "Неверный формат файла.";
+                        ColorMessageBox = "#FFFF9A9A";
+                    }
+                        
 
                 }
             }
@@ -125,7 +153,7 @@ namespace DocxToPdfMVVM.ViewModels
         }
         #endregion
 
-                    #region open folder with files
+        #region open folder with files
         private RelayCommand openCommand;
         public RelayCommand OpenCommand
         {
@@ -257,11 +285,202 @@ namespace DocxToPdfMVVM.ViewModels
         }
         #endregion
 
-        #region Property
-        public event PropertyChangedEventHandler PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName]string property = "")
+
+
+
+        #region Member Fields
+        Double _Value;
+        bool _IsInProgress;
+        int _Min = 0, _Max = 10;
+        #endregion
+
+        #region Member RelayCommands that implement ICommand
+        RelayCommandForProgressBar _IncrementBy1;
+        RelayCommandForProgressBar _IncrementAsBackgroundProcess;
+        RelayCommandForProgressBar _ResetCounter;
+        #endregion
+
+
+        #region Properties For progressBar
+        public bool IsInProgress
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
+            get { return _IsInProgress; }
+            set
+            {
+                _IsInProgress = value;
+                OnPropertyChanged("IsInProgress");
+                OnPropertyChanged("IsNotInProgress");
+            }
+        }
+
+        public bool IsNotInProgress
+        {
+            get { return !IsInProgress; }
+        }
+
+        //Максимальное значение progressBar
+        public int Max
+        {
+            get { return _Max; }
+            set { _Max = value; OnPropertyChanged("Max"); }
+        }
+        //Минимально значение progressBar
+        public int Min
+        {
+            get { return _Min; }
+            set { _Min = value; OnPropertyChanged("Min"); }
+        }
+
+        //Значение progressBar
+        public Double Value
+        {
+            get { return _Value; }
+            set
+            {
+                if (value <= _Max)
+                {
+                    if (value >= _Min) { _Value = value; }
+                    else { _Value = _Min; }
+                }
+                else { _Value = _Max; }
+                OnPropertyChanged("Value");
+            }
+        }
+
+        #region ICommand Properties
+        /// <summary>
+        /// An ICommand representation of the Increment() function.
+        /// </summary>
+        public ICommand IncrementBy1
+        {
+            get
+            {
+                if (_IncrementBy1 == null)
+                {
+                    _IncrementBy1 = new RelayCommandForProgressBar(param => this.Increment());
+                }
+                return _IncrementBy1;
+            }
+        }
+
+
+        public ICommand IncrementAsBackgroundProcess
+        {
+            get
+            {
+                if (_IncrementAsBackgroundProcess == null)
+                {
+                    _IncrementAsBackgroundProcess = new RelayCommandForProgressBar(param => this.IncrementProgressBackgroundWorker());
+                }
+                return _IncrementAsBackgroundProcess;
+            }
+        }
+
+        public ICommand ResetCounter
+        {
+            get
+            {
+                if (_ResetCounter == null)
+                {
+                    _ResetCounter = new RelayCommandForProgressBar(param => this.Reset());
+                }
+                return _ResetCounter;
+            }
+        }
+        #endregion ICommand Properties
+        #endregion for ProgressBar
+
+        #region Functions For progressBar
+        public void Increment()
+        {
+            if (IsInProgress)
+                return;
+
+            if (Value == ItemsSet.Items.Count - 1)
+                Reset();
+            Value++;
+        }
+
+
+
+        //Фоновый процесс
+        public void IncrementProgressBackgroundWorker()
+        {
+            if (IsInProgress)
+                return;
+
+            Reset();
+            IsInProgress = true;
+            BackgroundWorker worker = new BackgroundWorker();
+
+            worker.DoWork += new DoWorkEventHandler(worker_DoWork);
+
+            worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(worker_RunWorkerCompleted);
+
+            // Запуск worker асинхронно
+            worker.RunWorkerAsync();
+        }
+
+
+        void worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            //Обработка файлов в фоновом потоке и заполнение progressBar
+            BackgroundWorker worker = sender as BackgroundWorker;
+
+            Microsoft.Office.Interop.Word.Application app = new Microsoft.Office.Interop.Word.Application();
+            Microsoft.Office.Interop.Word.Document doc = null;
+
+            try
+            {
+                Max = ItemsSet.Items.Count;
+                for (int i = 0; i < ItemsSet.Items.Count; i++)
+                {
+                    object missing = Type.Missing;
+                    object readOnly = false;
+                    string source = ItemsSet.Items[i];
+                    doc = app.Documents.Open(source, ref missing, ref readOnly,
+                                          ref missing, ref missing, ref missing,
+                                          ref missing, ref missing, ref missing,
+                                          ref missing, ref missing, ref missing,
+                                          ref missing, ref missing, ref missing,
+                                          ref missing);
+
+                    doc.ExportAsFixedFormat(ItemsSet.PathFile + @"\" + System.IO.Path.GetFileNameWithoutExtension(source) + ".pdf",
+                        Microsoft.Office.Interop.Word.WdExportFormat.wdExportFormatPDF);
+
+                    doc.Close();
+                    Value++;
+                    Thread.Sleep(1000);
+                }
+                app.Quit();
+                VisibilityNotify = "Visible";
+                MessageText = "Конвертация завершена";
+                ColorMessageBox = "#FFC4E2F2";
+            }
+            catch
+            {
+                app.Quit();
+                VisibilityNotify = "Visible";
+                MessageText = "Ошибка конвертирования. Возможно содержатся незакрытые или временные файлы.";
+                ColorMessageBox = "#FFFF9A9A";
+                MessageBox.Show("Ошибка конвертирования. Возможно содержатся незакрытые или временные файлы.");
+            }
+        }
+
+
+        void worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        void worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            IsInProgress = false;
+        }
+
+        private void Reset()
+        {
+            Value = Min;
         }
         #endregion
 
