@@ -14,16 +14,20 @@
             <Setter Property="Width" Value="200"></Setter>
             <Setter Property="Height" Value="30"></Setter>
         </Style>
-        <local:ProgressBarViewModel x:Key="PBVM" />
     </Window.Resources>
     
     <Grid>
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Setter Property="KeyboardNavigation.TabNavigation" Value="None"></Setter>
+            </Style>
+        </Grid.Style>
         <Grid.ColumnDefinitions>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
-            <RowDefinition Height="0.2*"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="30"></RowDefinition>
@@ -55,9 +59,9 @@
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" 
                     VerticalAlignment="Center" HorizontalAlignment="Center">
-            <Button Width="200" Height="50" Margin="20,0,20,0" Command="{Binding OpenCommand}" 
+            <Button Width="200" Height="25" Margin="20,0,20,0" Command="{Binding OpenCommand}" 
                     Style="{StaticResource RoundCorner}">Открыть директорию с файлами</Button>
-            <Button Width="200" Height="50" Margin="20,0,20,0" Command="{Binding SaveCommand}" 
+            <Button Width="200" Height="25" Margin="20,0,20,0" Command="{Binding SaveCommand}" 
                     Style="{StaticResource RoundCorner}">Директория для сохранения</Button>
         </StackPanel>
 
@@ -65,13 +69,13 @@
                     VerticalAlignment="Center" HorizontalAlignment="Center">
             <Button IsEnabled="{Binding IsNotInProgress}" Command="{Binding IncrementAsBackgroundProcess}" 
                     
-                    Height="50" Width="200" Style="{StaticResource RoundCorner}">Начать конвертацию</Button>
+                    Height="25" Width="200" Style="{StaticResource RoundCorner}">Начать конвертацию</Button>
             
         </StackPanel>
         <ProgressBar  Grid.Row="4" Height="20" VerticalAlignment="Center" Margin="20,0,20,0"
                       Value="{Binding Value}" 
                        Minimum="{Binding Min}" 
-                      Maximum="{Binding Max}"></ProgressBar>
+                      Maximum="{Binding Max}" Foreground="#FFAEDAD6"></ProgressBar>
         
         <Border x:Name="BorderPopup" CornerRadius="6,6,6,6" Margin="0,0,0,0" Grid.RowSpan="6"
                 HorizontalAlignment="Center" VerticalAlignment="Center" Width="300" Height="100" 

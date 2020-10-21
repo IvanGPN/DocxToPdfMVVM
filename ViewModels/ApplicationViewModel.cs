@@ -249,41 +249,6 @@ namespace DocxToPdfMVVM.ViewModels
         }
         #endregion delete on
 
-        #region start process
-        private RelayCommand startConvertCommand;
-        public RelayCommand StartConvertCommand
-        {
-            get 
-            {
-                return startConvertCommand ??
-                    (startConvertCommand = new RelayCommand(obj =>
-                    {
-                        Microsoft.Office.Interop.Word.Application app = new Microsoft.Office.Interop.Word.Application();
-                        Word.Document doc = null;
-
-                        try
-                        {
-                            for (int i = 0; i < Items.Count; i++)
-                            {
-                                string source = Items[i];
-                                doc = app.Documents.Open(source);
-
-                                doc.ExportAsFixedFormat(PathFiles + @"\" + System.IO.Path.GetFileNameWithoutExtension(source) + ".pdf", 
-                                    Word.WdExportFormat.wdExportFormatPDF);
-
-                                doc.Close();
-
-                            }
-                            app.Quit();
-                        }
-                        catch
-                        {
-                            app.Quit();
-                        }
-                    }));
-            }
-        }
-        #endregion
 
 
 
@@ -463,7 +428,7 @@ namespace DocxToPdfMVVM.ViewModels
                 VisibilityNotify = "Visible";
                 MessageText = "Ошибка конвертирования. Возможно содержатся незакрытые или временные файлы.";
                 ColorMessageBox = "#FFFF9A9A";
-                MessageBox.Show("Ошибка конвертирования. Возможно содержатся незакрытые или временные файлы.");
+                
             }
         }
 
